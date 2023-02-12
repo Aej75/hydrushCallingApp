@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "146241456204",
+    "project_id": "whatsappclone-d2abb",
+    "storage_bucket": "whatsappclone-d2abb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:146241456204:android:9e2329bfe258d638744ce9",
+        "android_client_info": {
+          "package_name": "com.hydrush.whatsappClone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "146241456204-fpknsj8ukhkoa7qm34rdo5acopikiucd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_gADB0RhNDEwXbIusskTXF969w_XIY7U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "146241456204-fpknsj8ukhkoa7qm34rdo5acopikiucd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
