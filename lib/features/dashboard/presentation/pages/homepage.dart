@@ -1,15 +1,15 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:draggable_float_widget/draggable_float_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whatsapp/core/route/routes.gr.dart';
-import 'package:whatsapp/features/dashboard/models/database_model.dart';
+import 'package:whatsapp/features/dashboard/presentation/pages/bloc/rtc_databse_crud_bloc/bloc/rtc_crud_bloc.dart';
 import 'package:whatsapp/features/dashboard/presentation/pages/chat_page.dart';
 
 import 'bloc/listen_bloc/listen_bloc.dart';
@@ -67,52 +67,57 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   ListenBloc listenBloc = ListenBloc();
+
+  RtcCrudBloc rtcCrudBloc = RtcCrudBloc();
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    return BlocProvider(
-      create: (context) => listenBloc..add(ListenDataEvent(listen: true)),
-      child: BlocListener<ListenBloc, ListenState>(
-        listener: (context, state) {
-          if (state is ListenDataLiveState) {
-            QuickAlert.show(
-              context: context,
-              type: QuickAlertType.confirm,
-              onConfirmBtnTap: () async {
-                var documentReference = FirebaseFirestore.instance
-                    .collection('Users')
-                    .doc(FirebaseAuth.instance.currentUser!.phoneNumber)
-                    .withConverter(
-                      fromFirestore: FireDatabase.fromFirestore,
-                      toFirestore: (FireDatabase database, _) =>
-                          database.toFirestore(),
-                    );
-
-                final docSnap = await documentReference.get();
-                final data = docSnap.data(); // Convert to City object
-                if (data!.agoraRtcToken != null) {
-                  print(data.agoraRtcToken);
-                  if (!await Permission.camera.status.isGranted ||
-                      !await Permission.microphone.status.isGranted) {
-                    await Permission.camera.request();
-                    await Permission.microphone.request();
-                    if (await Permission.camera.status.isGranted &&
-                        await Permission.microphone.status.isGranted) {
-                      context.router
-                          .push(CallPageRoute(token: data.agoraRtcToken));
-                    }
-                  } else {
-                    context.router
-                        .push(CallPageRoute(token: data.agoraRtcToken));
-                  }
-                } else {
-                  print("No such document.");
-                }
-              },
-            );
-          }
-        },
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => listenBloc..add(ListenDataEvent(listen: true)),
+        ),
+        BlocProvider(
+          create: (context) => rtcCrudBloc,
+        ),
+      ],
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<ListenBloc, ListenState>(
+            listener: (context, state) {
+              if (state is ListenDataLiveState) {
+                QuickAlert.show(
+                    context: context,
+                    type: QuickAlertType.confirm,
+                    title: state.callerId,
+                    text: "Do you want to receive a call?",
+                    onConfirmBtnTap: () async {
+                      rtcCrudBloc.add(RtcCrudUpdateEvent());
+                      Navigator.pop(context);
+                    },
+                    onCancelBtnTap: () {
+                      rtcCrudBloc.add(RtcCrudDeleteEvent());
+                      Navigator.pop(context);
+                    },
+                    barrierDismissible: false);
+              }
+            },
+          ),
+          BlocListener<RtcCrudBloc, RtcCrudState>(
+            listener: (context, state) {
+              if (state is RtcCrudUpdateLoadingState) {
+                EasyLoading.show();
+              } else if (state is RtcCrudUpdateFailState) {
+                EasyLoading.dismiss();
+                EasyLoading.showError(state.message);
+              } else if (state is RtcCrudUpdateSuccessState) {
+                EasyLoading.dismiss();
+                context.router.push(CallPageRoute(token: state.rtcToken));
+              }
+            },
+          ),
+        ],
         child: SafeArea(
           child: Scaffold(
             floatingActionButton: FloatingActionButton(
@@ -215,36 +220,22 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           SliverList(
                             delegate: SliverChildListDelegate(
                               [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: <Widget>[
-                                    Expanded(
+                                Stack(
+                                  children: [
+                                    Container(
+                                      color: Colors.red,
+                                      height: 500,
+                                      width: 100,
+                                    ),
+                                    DraggableFloatWidget(
                                       child: Container(
                                         color: Colors.white,
-                                        width: double.infinity,
-                                        child: Image.network(
-                                          'https://cdn.britannica.com/24/58624-050-73A7BF0B/valley-Atlas-Mountains-Morocco.jpg',
-                                          fit: BoxFit.cover,
-                                        ),
+                                        height: 0100,
+                                        width: 100,
                                       ),
                                     ),
                                   ],
-                                ),
-                                const SizedBox(
-                                  height: 10.0,
-                                ),
-                                Row(
-                                  children: <Widget>[
-                                    Expanded(
-                                      child: Container(
-                                        color: Colors.white,
-                                        width: double.infinity,
-                                        child: const Text('text'),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                )
                               ],
                             ),
                           ),

@@ -43,30 +43,6 @@ class _MyAppState extends State<MyApp> {
   ListenBloc listenBloc = ListenBloc();
   @override
   Widget build(BuildContext context) {
-    // return MaterialApp(
-    //   builder: (context, child) {
-    //     return SafeArea(
-    //       child: Scaffold(
-    //         body: StreamBuilder<DocumentSnapshot>(
-    //           stream: FirebaseFirestore.instance
-    //               .collection("Users")
-    //               .doc(FirebaseAuth.instance.currentUser!.uid)
-    //               .snapshots()
-    //               .listen((DocumentSnapshot documentSnapshot) {}),
-    //           builder: (context, snapshot) {
-    //             if (snapshot.hasData) {
-    //               var data = snapshot.data!.data();
-    //               Map<String, dynamic> fieldValue = data['fieldName'] ?? '';
-    //               return Text("The field value is: $fieldValue");
-    //             } else {
-    //               return const CircularProgressIndicator();
-    //             }
-    //           },
-    //         ),
-    //       ),
-    //     );
-    //   },
-    // );
     return MaterialApp(
       builder: (context, child) {
         return FlutterEasyLoading(

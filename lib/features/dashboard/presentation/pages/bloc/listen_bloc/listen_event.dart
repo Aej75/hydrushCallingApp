@@ -10,7 +10,7 @@ class ListenDataEvent extends ListenEvent {
 }
 
 class OnChangeEvent extends ListenEvent {
-  final String message;
+  final String callerId;
 
-  OnChangeEvent(this.message);
+  OnChangeEvent(this.callerId);
 }

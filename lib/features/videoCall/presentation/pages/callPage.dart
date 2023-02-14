@@ -4,6 +4,7 @@ import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as rtc_local_view;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as rtc_remote_view;
 import 'package:flutter/material.dart';
+import 'package:whatsapp/features/dashboard/presentation/pages/bloc/rtc_databse_crud_bloc/bloc/rtc_crud_bloc.dart';
 
 import '../../../../core/utils/settings.dart';
 
@@ -37,6 +38,8 @@ class _CallPageState extends State<CallPage> {
     initialize();
   }
 
+  RtcCrudBloc rtcCrudBloc = RtcCrudBloc();
+
   @override
   void dispose() {
     // TODO: implement dispose
@@ -66,7 +69,7 @@ class _CallPageState extends State<CallPage> {
 
     _addAgoraEventHandlers();
     VideoEncoderConfiguration configuration = VideoEncoderConfiguration();
-    configuration.dimensions = const VideoDimensions(width: 1920, height: 1080);
+    // configuration.dimensions = const VideoDimensions(width: 1920, height: 1080);
     await _engine.setVideoEncoderConfiguration(configuration);
     await _engine.joinChannel(widget.token, widget.channelName!, null, 0);
   }
@@ -120,7 +123,7 @@ class _CallPageState extends State<CallPage> {
     final List<StatefulWidget> list = [];
 
     if (widget.role == ClientRole.Broadcaster) {
-      list.add(const rtc_local_view.SurfaceView());
+      list.add(const rtc_local_view.SurfaceView.screenShare());
     }
     for (var uid in _users) {
       list.add(rtc_remote_view.SurfaceView(
@@ -131,9 +134,46 @@ class _CallPageState extends State<CallPage> {
 
     final views = list;
 
-    return Column(
-        children: List.generate(
-            views.length, (index) => Expanded(child: views[index])));
+    // for (int i = 1; views.length < i; i++) {
+    //   if (i == 1) {
+    //     return Stack(
+    //       children: [
+    //         Positioned(
+    //           top: 0,
+    //           child: SizedBox(
+    //               width: MediaQuery.of(context).size.width / 3,
+    //               height: MediaQuery.of(context).size.width / 3,
+    //               child: views[1]),
+    //         ),
+    //         Expanded(child: views[2])
+    //       ],
+    //     );
+    //   }
+    // }
+    return views.length == 1
+        ? Expanded(child: views[0])
+        : Stack(
+            children: [
+              Expanded(child: views[1]),
+              Positioned(
+                  right: 10,
+                  top: 10,
+                  child: SizedBox(height: 150, width: 100, child: views[0]))
+            ],
+          );
+
+    // FloatingDraggableWidget(
+    //     screenHeight: MediaQuery.of(context).size.height,
+    //     screenWidth: MediaQuery.of(context).size.width,
+    //     autoAlign: true,
+    //     mainScreenWidget: Expanded(child: views[1]),
+    //     floatingWidgetHeight: 150,
+    //     floatingWidgetWidth: 100,
+    //     floatingWidget: Expanded(child: views[0]),
+    //   );
+
+    // return Stack(
+    //     children: List.generate(views.length, (index) => views[index]));
   }
 
   Widget _toolbar() {
@@ -163,7 +203,8 @@ class _CallPageState extends State<CallPage> {
             ),
           ),
           RawMaterialButton(
-            onPressed: () {
+            onPressed: () async {
+              rtcCrudBloc.add(RtcCrudDeleteEvent());
               Navigator.pop(context);
             },
             shape: const CircleBorder(),

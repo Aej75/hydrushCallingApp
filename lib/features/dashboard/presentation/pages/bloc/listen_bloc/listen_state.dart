@@ -6,7 +6,7 @@ abstract class ListenState {}
 class ListenInitial extends ListenState {}
 
 class ListenDataLiveState extends ListenState {
-  final String message;
+  final String callerId;
 
-  ListenDataLiveState(this.message);
+  ListenDataLiveState(this.callerId);
 }

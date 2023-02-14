@@ -52,6 +52,8 @@ dependencies:
   pinput: ^2.2.20
   shared_preferences: ^2.0.17
   dio: ^5.0.0
+  floating_draggable_widget: ^2.1.2
+  draggable_float_widget: ^0.0.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

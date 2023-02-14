@@ -12,7 +12,11 @@ import '../../features/videoCall/presentation/pages/callPage.dart';
 @AdaptiveAutoRouter(
   preferRelativeImports: true,
   routes: [
-    AdaptiveRoute(page: HomePage, guards: [AuthGuard], initial: true),
+    AdaptiveRoute(
+      page: HomePage,
+      guards: [AuthGuard],
+      initial: true,
+    ),
     AdaptiveRoute(page: SignUpPage),
     AdaptiveRoute(page: LoginPage),
     AdaptiveRoute(page: ChatScreen),

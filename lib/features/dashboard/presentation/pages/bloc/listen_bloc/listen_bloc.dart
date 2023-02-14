@@ -5,12 +5,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meta/meta.dart';
 
+import '../../../../models/database_model.dart';
+
 part 'listen_event.dart';
 part 'listen_state.dart';
 
 class ListenBloc extends Bloc<ListenEvent, ListenState> {
   final CollectionReference userCollection =
       FirebaseFirestore.instance.collection("Users");
+
+  var documentReference = FirebaseFirestore.instance
+      .collection('Users')
+      .doc(FirebaseAuth.instance.currentUser!.phoneNumber)
+      .collection('caller_details')
+      .doc('details')
+      .withConverter(
+        fromFirestore: FireDatabase.fromFirestore,
+        toFirestore: (FireDatabase database, _) => database.toFirestore(),
+      );
   ListenBloc() : super(ListenInitial()) {
     on<ListenDataEvent>((event, emit) {
       Stream<QuerySnapshot<Map<String, dynamic>>> notificationStream;
@@ -22,11 +34,16 @@ class ListenBloc extends Bloc<ListenEvent, ListenState> {
                 isEqualTo: FirebaseAuth.instance.currentUser!.phoneNumber)
             .limit(1)
             .snapshots();
-        subscription = notificationStream.listen((event) {
+        subscription = notificationStream.listen((event) async {
           if (event.docs.isEmpty) {
             return;
           } else {
-            add(OnChangeEvent(event.docs.first.get('agoraCalling').toString()));
+            if (event.docs.first.get('agoraCalling') == true) {
+              final docSnap = await documentReference.get();
+              var callerId = docSnap.data();
+
+              add(OnChangeEvent(callerId!.callerName!));
+            }
           }
         });
       }
@@ -36,8 +53,8 @@ class ListenBloc extends Bloc<ListenEvent, ListenState> {
       }
     });
 
-    on<OnChangeEvent>((event, emit) {
-      emit(ListenDataLiveState(event.message));
+    on<OnChangeEvent>((event, emit) async {
+      emit(ListenDataLiveState(event.callerId));
     });
   }
 }
