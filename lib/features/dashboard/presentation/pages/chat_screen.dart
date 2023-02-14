@@ -23,10 +23,10 @@ class ChatScreen extends StatelessWidget {
                   await Permission.microphone.request();
                   if (await Permission.camera.status.isGranted &&
                       await Permission.microphone.status.isGranted) {
-                    context.router.push(CallPageRoute());
+                    // context.router.push(CallPageRoute());
                   }
                 } else {
-                  context.router.push(CallPageRoute());
+                  // context.router.push(CallPageRoute());
                 }
               },
               icon: const Icon(CupertinoIcons.video_camera))

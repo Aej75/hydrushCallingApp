@@ -6,7 +6,7 @@ abstract class ListenEvent {}
 class ListenDataEvent extends ListenEvent {
   final bool listen;
 
-  ListenDataEvent({this.listen = true});
+  ListenDataEvent({required this.listen});
 }
 
 class OnChangeEvent extends ListenEvent {

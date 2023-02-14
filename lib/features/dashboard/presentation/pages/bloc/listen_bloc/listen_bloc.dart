@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meta/meta.dart';
 
 part 'listen_event.dart';
@@ -15,8 +16,12 @@ class ListenBloc extends Bloc<ListenEvent, ListenState> {
       Stream<QuerySnapshot<Map<String, dynamic>>> notificationStream;
       StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? subscription;
       if (event.listen) {
-        notificationStream =
-            FirebaseFirestore.instance.collection("Users").snapshots();
+        notificationStream = FirebaseFirestore.instance
+            .collection("Users")
+            .where('phone',
+                isEqualTo: FirebaseAuth.instance.currentUser!.phoneNumber)
+            .limit(1)
+            .snapshots();
         subscription = notificationStream.listen((event) {
           if (event.docs.isEmpty) {
             return;
@@ -26,7 +31,7 @@ class ListenBloc extends Bloc<ListenEvent, ListenState> {
         });
       }
 
-      if (event.listen == false) {
+      if (!event.listen) {
         subscription?.cancel();
       }
     });

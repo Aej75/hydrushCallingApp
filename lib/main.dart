@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:whatsapp/core/route/auth_guard.dart';
 import 'package:whatsapp/core/route/routes.gr.dart';
-import 'package:whatsapp/features/dashboard/presentation/pages/bloc/bloc/listen_bloc.dart';
+
+import 'features/dashboard/presentation/pages/bloc/listen_bloc/listen_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

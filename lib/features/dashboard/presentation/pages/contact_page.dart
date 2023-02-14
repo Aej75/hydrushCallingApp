@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:whatsapp/features/dashboard/presentation/pages/bloc/contacts_bloc.dart';
 
 import '../widgets/contact_main.dart';
+import 'bloc/contact_bloc/contacts_bloc.dart';
 
 class ContactPage extends StatefulWidget {
   const ContactPage({super.key});

@@ -8,11 +8,13 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/settings.dart';
 
 class CallPage extends StatefulWidget {
+  final String token;
   final String? channelName;
   final ClientRole? role;
   const CallPage(
       {super.key,
-      this.channelName = 'ajay',
+      required this.token,
+      this.channelName = 'videoCall',
       this.role = ClientRole.Broadcaster});
 
   @override
@@ -66,7 +68,7 @@ class _CallPageState extends State<CallPage> {
     VideoEncoderConfiguration configuration = VideoEncoderConfiguration();
     configuration.dimensions = const VideoDimensions(width: 1920, height: 1080);
     await _engine.setVideoEncoderConfiguration(configuration);
-    await _engine.joinChannel(token, widget.channelName!, null, 0);
+    await _engine.joinChannel(widget.token, widget.channelName!, null, 0);
   }
 
   void _addAgoraEventHandlers() {

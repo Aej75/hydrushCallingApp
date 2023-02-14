@@ -1,14 +1,18 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whatsapp/core/route/routes.gr.dart';
+import 'package:whatsapp/features/dashboard/models/database_model.dart';
 import 'package:whatsapp/features/dashboard/presentation/pages/chat_page.dart';
 
-import 'bloc/bloc/listen_bloc.dart';
+import 'bloc/listen_bloc/listen_bloc.dart';
 import 'contact_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -72,7 +76,41 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       child: BlocListener<ListenBloc, ListenState>(
         listener: (context, state) {
           if (state is ListenDataLiveState) {
-            EasyLoading.showInfo(state.message);
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.confirm,
+              onConfirmBtnTap: () async {
+                var documentReference = FirebaseFirestore.instance
+                    .collection('Users')
+                    .doc(FirebaseAuth.instance.currentUser!.phoneNumber)
+                    .withConverter(
+                      fromFirestore: FireDatabase.fromFirestore,
+                      toFirestore: (FireDatabase database, _) =>
+                          database.toFirestore(),
+                    );
+
+                final docSnap = await documentReference.get();
+                final data = docSnap.data(); // Convert to City object
+                if (data!.agoraRtcToken != null) {
+                  print(data.agoraRtcToken);
+                  if (!await Permission.camera.status.isGranted ||
+                      !await Permission.microphone.status.isGranted) {
+                    await Permission.camera.request();
+                    await Permission.microphone.request();
+                    if (await Permission.camera.status.isGranted &&
+                        await Permission.microphone.status.isGranted) {
+                      context.router
+                          .push(CallPageRoute(token: data.agoraRtcToken));
+                    }
+                  } else {
+                    context.router
+                        .push(CallPageRoute(token: data.agoraRtcToken));
+                  }
+                } else {
+                  print("No such document.");
+                }
+              },
+            );
           }
         },
         child: SafeArea(

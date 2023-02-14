@@ -69,12 +69,12 @@ class AppRouter extends _i8.RootStackRouter {
       );
     },
     CallPageRoute.name: (routeData) {
-      final args = routeData.argsAs<CallPageRouteArgs>(
-          orElse: () => const CallPageRouteArgs());
+      final args = routeData.argsAs<CallPageRouteArgs>();
       return _i8.AdaptivePage<dynamic>(
         routeData: routeData,
         child: _i5.CallPage(
           key: args.key,
+          token: args.token,
           channelName: args.channelName,
           role: args.role,
         ),
@@ -222,13 +222,15 @@ class ChatScreenRoute extends _i8.PageRouteInfo<void> {
 class CallPageRoute extends _i8.PageRouteInfo<CallPageRouteArgs> {
   CallPageRoute({
     _i9.Key? key,
-    String? channelName = 'ajay',
+    required String token,
+    String? channelName = 'videoCall',
     _i11.ClientRole? role = _i11.ClientRole.Broadcaster,
   }) : super(
           CallPageRoute.name,
           path: '/call-page',
           args: CallPageRouteArgs(
             key: key,
+            token: token,
             channelName: channelName,
             role: role,
           ),
@@ -240,11 +242,14 @@ class CallPageRoute extends _i8.PageRouteInfo<CallPageRouteArgs> {
 class CallPageRouteArgs {
   const CallPageRouteArgs({
     this.key,
-    this.channelName = 'ajay',
+    required this.token,
+    this.channelName = 'videoCall',
     this.role = _i11.ClientRole.Broadcaster,
   });
 
   final _i9.Key? key;
+
+  final String token;
 
   final String? channelName;
 
@@ -252,7 +257,7 @@ class CallPageRouteArgs {
 
   @override
   String toString() {
-    return 'CallPageRouteArgs{key: $key, channelName: $channelName, role: $role}';
+    return 'CallPageRouteArgs{key: $key, token: $token, channelName: $channelName, role: $role}';
   }
 }
 
