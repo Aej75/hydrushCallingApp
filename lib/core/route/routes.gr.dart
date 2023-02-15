@@ -75,6 +75,7 @@ class AppRouter extends _i8.RootStackRouter {
         child: _i5.CallPage(
           key: args.key,
           token: args.token,
+          friendPhone: args.friendPhone,
           channelName: args.channelName,
           role: args.role,
         ),
@@ -223,6 +224,7 @@ class CallPageRoute extends _i8.PageRouteInfo<CallPageRouteArgs> {
   CallPageRoute({
     _i9.Key? key,
     required String token,
+    required String friendPhone,
     String? channelName = 'videoCall',
     _i11.ClientRole? role = _i11.ClientRole.Broadcaster,
   }) : super(
@@ -231,6 +233,7 @@ class CallPageRoute extends _i8.PageRouteInfo<CallPageRouteArgs> {
           args: CallPageRouteArgs(
             key: key,
             token: token,
+            friendPhone: friendPhone,
             channelName: channelName,
             role: role,
           ),
@@ -243,6 +246,7 @@ class CallPageRouteArgs {
   const CallPageRouteArgs({
     this.key,
     required this.token,
+    required this.friendPhone,
     this.channelName = 'videoCall',
     this.role = _i11.ClientRole.Broadcaster,
   });
@@ -251,13 +255,15 @@ class CallPageRouteArgs {
 
   final String token;
 
+  final String friendPhone;
+
   final String? channelName;
 
   final _i11.ClientRole? role;
 
   @override
   String toString() {
-    return 'CallPageRouteArgs{key: $key, token: $token, channelName: $channelName, role: $role}';
+    return 'CallPageRouteArgs{key: $key, token: $token, friendPhone: $friendPhone, channelName: $channelName, role: $role}';
   }
 }
 

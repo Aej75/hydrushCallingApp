@@ -10,3 +10,5 @@ class ListenDataLiveState extends ListenState {
 
   ListenDataLiveState(this.callerId);
 }
+
+class ListenAndUpdateState extends ListenState {}

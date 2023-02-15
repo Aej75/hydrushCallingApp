@@ -4,17 +4,21 @@ import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as rtc_local_view;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as rtc_remote_view;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:whatsapp/features/dashboard/presentation/pages/bloc/listen_bloc/listen_bloc.dart';
 import 'package:whatsapp/features/dashboard/presentation/pages/bloc/rtc_databse_crud_bloc/bloc/rtc_crud_bloc.dart';
 
 import '../../../../core/utils/settings.dart';
 
 class CallPage extends StatefulWidget {
+  final String friendPhone;
   final String token;
   final String? channelName;
   final ClientRole? role;
   const CallPage(
       {super.key,
       required this.token,
+      required this.friendPhone,
       this.channelName = 'videoCall',
       this.role = ClientRole.Broadcaster});
 
@@ -29,7 +33,7 @@ class _CallPageState extends State<CallPage> {
   bool muted = false;
   bool viewPanel = false;
   late RtcEngine _engine;
-
+  ListenBloc listenBloc = ListenBloc();
   @override
   void initState() {
     // TODO: implement initState
@@ -94,7 +98,9 @@ class _CallPageState extends State<CallPage> {
         setState(() {
           const info = "leave Channel";
 
-          _users.clear();
+          setState(() {
+            _users.remove(_users[1]);
+          });
         });
       },
       userJoined: (remoteUid, elapsed) {
@@ -154,7 +160,7 @@ class _CallPageState extends State<CallPage> {
         ? Expanded(child: views[0])
         : Stack(
             children: [
-              Expanded(child: views[1]),
+              views[1],
               Positioned(
                   right: 10,
                   top: 10,
@@ -204,7 +210,15 @@ class _CallPageState extends State<CallPage> {
           ),
           RawMaterialButton(
             onPressed: () async {
+              await _engine.leaveChannel();
               rtcCrudBloc.add(RtcCrudDeleteEvent());
+
+              var updated =
+                  widget.friendPhone.replaceAll('(', '').replaceAll(')', '');
+
+              // listenBloc.add(UpdatePageEvent(friendPhone: updated));
+
+              // ignore: use_build_context_synchronously
               Navigator.pop(context);
             },
             shape: const CircleBorder(),
@@ -283,22 +297,34 @@ class _CallPageState extends State<CallPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(actions: [
-        IconButton(
-            onPressed: () {
-              setState(() {
-                viewPanel = !viewPanel;
-              });
-            },
-            icon: const Icon(Icons.info_outline))
-      ]),
-      body: Center(
-        //     child: Column(
-        //   children: [_toolbar()],
-        // )
+      appBar: AppBar(
+          //   actions: [
+          //   IconButton(
+          //       onPressed: () {
+          //         setState(() {
+          //           viewPanel = !viewPanel;
+          //         });
+          //       },
+          //       icon: const Icon(Icons.info_outline))
+          // ]
+          ),
+      body: BlocProvider(
+        create: (context) => listenBloc,
+        child: BlocListener<ListenBloc, ListenState>(
+          listener: (context, state) async {
+            if (state is ListenAndUpdateState) {
+              setState(() {});
+            }
+          },
+          child: Center(
+            //     child: Column(
+            //   children: [_toolbar()],
+            // )
 
-        child: Stack(
-          children: [_viewRows(), _panel(), _toolbar()],
+            child: Stack(
+              children: [_viewRows(), _panel(), _toolbar()],
+            ),
+          ),
         ),
       ),
     );

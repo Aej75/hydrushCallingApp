@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -34,6 +35,7 @@ class ListenBloc extends Bloc<ListenEvent, ListenState> {
                 isEqualTo: FirebaseAuth.instance.currentUser!.phoneNumber)
             .limit(1)
             .snapshots();
+
         subscription = notificationStream.listen((event) async {
           if (event.docs.isEmpty) {
             return;
@@ -55,6 +57,22 @@ class ListenBloc extends Bloc<ListenEvent, ListenState> {
 
     on<OnChangeEvent>((event, emit) async {
       emit(ListenDataLiveState(event.callerId));
+    });
+
+    on<UpdatePageEvent>((event, emit) {
+      Stream<QuerySnapshot<Map<String, dynamic>>> forUpdatePage =
+          FirebaseFirestore.instance
+              .collection("Users")
+              .where('phone', isEqualTo: event.friendPhone)
+              .limit(1)
+              .snapshots();
+      StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? subscription2 =
+          forUpdatePage.listen((event) async {
+        log('the user call is ${event.docs.first.get('agoraCalling')}');
+        if (event.docs.first.get('agoraCalling') == false) {
+          emit(ListenAndUpdateState());
+        }
+      });
     });
   }
 }

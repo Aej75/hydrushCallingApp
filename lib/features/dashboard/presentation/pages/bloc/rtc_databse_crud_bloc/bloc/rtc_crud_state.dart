@@ -15,8 +15,9 @@ class RtcCrudUpdateFailState extends RtcCrudState {
 
 class RtcCrudUpdateSuccessState extends RtcCrudState {
   final String rtcToken;
+  final String friendPhone;
 
-  RtcCrudUpdateSuccessState(this.rtcToken);
+  RtcCrudUpdateSuccessState(this.rtcToken, this.friendPhone);
 }
 
 class RtcCrudDeleteLoadingState extends RtcCrudState {}

@@ -12,18 +12,23 @@ import 'package:whatsapp/core/route/routes.gr.dart';
 import 'package:whatsapp/features/dashboard/presentation/pages/bloc/listen_bloc/listen_bloc.dart';
 import 'package:whatsapp/features/dashboard/presentation/pages/bloc/rtcToken_bloc/bloc/rtc_bloc.dart';
 
-class ContactMain extends StatelessWidget {
+class ContactMain extends StatefulWidget {
   final String name;
   final String? phoneNumber;
   final ImageProvider<Object>? image;
-  ContactMain({super.key, required this.name, this.image, this.phoneNumber});
+  const ContactMain(
+      {super.key, required this.name, this.image, this.phoneNumber});
+
+  @override
+  State<ContactMain> createState() => _ContactMainState();
+}
+
+class _ContactMainState extends State<ContactMain> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   var auth = FirebaseAuth.instance;
 
   var updated;
-
-  RtcBloc rtcBloc = RtcBloc();
-  ListenBloc listenBloc = ListenBloc();
 
   Future<bool> doesDocumentExist(String documentId) async {
     updated = "+${documentId.replaceAll(RegExp(r'[+-\s\(\)]'), "")}";
@@ -34,19 +39,29 @@ class ContactMain extends StatelessWidget {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    rtcBloc = RtcBloc();
+    listenBloc = ListenBloc();
+  }
+
+  late RtcBloc rtcBloc;
+  late ListenBloc listenBloc;
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => rtcBloc,
       child: BlocListener<RtcBloc, RtcState>(
         listener: (context, state) async {
           if (state is RtcGetLoadingState) {
-            EasyLoading.show();
+            EasyLoading.show(status: 'Connecting...');
           } else if (state is RtcGetFailState) {
             EasyLoading.dismiss();
             EasyLoading.showError(state.message);
           } else if (state is RtcGetSuccessState) {
             EasyLoading.dismiss();
-            EasyLoading.showSuccess(state.message);
+            EasyLoading.showSuccess('Ringing...');
 
             if (!await Permission.camera.status.isGranted ||
                 !await Permission.microphone.status.isGranted) {
@@ -54,10 +69,12 @@ class ContactMain extends StatelessWidget {
               await Permission.microphone.request();
               if (await Permission.camera.status.isGranted &&
                   await Permission.microphone.status.isGranted) {
-                context.router.push(CallPageRoute(token: state.message));
+                context.router.push(CallPageRoute(
+                    token: state.message, friendPhone: widget.phoneNumber!));
               }
             } else {
-              context.router.push(CallPageRoute(token: state.message));
+              context.router.push(CallPageRoute(
+                  token: state.message, friendPhone: widget.phoneNumber!));
             }
           }
         },
@@ -68,17 +85,17 @@ class ContactMain extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  image == null
+                  widget.image == null
                       ? CircleAvatar(
                           radius: 25,
                           backgroundColor: Theme.of(context).cardColor,
                           child: const Icon(Icons.person),
                         )
-                      : CircleAvatar(radius: 25, backgroundImage: image),
+                      : CircleAvatar(radius: 25, backgroundImage: widget.image),
                   const SizedBox(
                     width: 20,
                   ),
-                  Text(name),
+                  Text(widget.name),
                 ],
               ),
               IconButton(
@@ -88,11 +105,9 @@ class ContactMain extends StatelessWidget {
                     final bool? authenticated = prefs.getBool('authenticated');
                     if (authenticated!) {
                       bool documentExists =
-                          await doesDocumentExist(phoneNumber!);
+                          await doesDocumentExist(widget.phoneNumber!);
 
                       if (documentExists) {
-                        EasyLoading.showSuccess('You can make a call');
-
                         print('Updated = $updated');
 
                         rtcBloc.add(RtcTokenGetEvent(uid: updated));

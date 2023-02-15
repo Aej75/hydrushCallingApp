@@ -93,7 +93,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     title: state.callerId,
                     text: "Do you want to receive a call?",
                     onConfirmBtnTap: () async {
-                      rtcCrudBloc.add(RtcCrudUpdateEvent());
+                      rtcCrudBloc
+                          .add(RtcCrudUpdateEvent(friendPhone: state.callerId));
                       Navigator.pop(context);
                     },
                     onCancelBtnTap: () {
@@ -113,7 +114,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 EasyLoading.showError(state.message);
               } else if (state is RtcCrudUpdateSuccessState) {
                 EasyLoading.dismiss();
-                context.router.push(CallPageRoute(token: state.rtcToken));
+                context.router.push(CallPageRoute(
+                    token: state.rtcToken, friendPhone: state.rtcToken));
               }
             },
           ),

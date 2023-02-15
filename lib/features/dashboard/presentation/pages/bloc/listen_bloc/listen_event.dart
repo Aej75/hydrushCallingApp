@@ -14,3 +14,9 @@ class OnChangeEvent extends ListenEvent {
 
   OnChangeEvent(this.callerId);
 }
+
+class UpdatePageEvent extends ListenEvent {
+  final String friendPhone;
+
+  UpdatePageEvent({required this.friendPhone});
+}

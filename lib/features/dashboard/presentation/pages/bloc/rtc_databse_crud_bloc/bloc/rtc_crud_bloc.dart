@@ -21,7 +21,7 @@ class RtcCrudBloc extends Bloc<RtcCrudEvent, RtcCrudState> {
   RtcCrudBloc() : super(RtcCrudInitial()) {
     on<RtcCrudUpdateEvent>((event, emit) async {
       // TODO: implement event handler
-
+      //
       emit(RtcCrudUpdateLoadingState());
 
       final docSnap = await documentReference.get();
@@ -34,10 +34,12 @@ class RtcCrudBloc extends Bloc<RtcCrudEvent, RtcCrudState> {
           await Permission.microphone.request();
           if (await Permission.camera.status.isGranted &&
               await Permission.microphone.status.isGranted) {
-            emit(RtcCrudUpdateSuccessState(data.agoraRtcToken!));
+            emit(RtcCrudUpdateSuccessState(
+                data.agoraRtcToken!, event.friendPhone));
           }
         } else {
-          emit(RtcCrudUpdateSuccessState(data.agoraRtcToken!));
+          emit(RtcCrudUpdateSuccessState(
+              data.agoraRtcToken!, event.friendPhone));
         }
       } else {
         emit(RtcCrudUpdateFailState('No such user'));

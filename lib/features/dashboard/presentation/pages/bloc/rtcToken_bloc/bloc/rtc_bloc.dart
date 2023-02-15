@@ -60,7 +60,7 @@ class RtcBloc extends Bloc<RtcEvent, RtcState> {
           emit(RtcGetFailState(message: e.toString()));
         }
       } catch (e) {
-        RtcGetFailState(message: e.toString());
+        emit(RtcGetFailState(message: e.toString()));
       }
     });
   }
